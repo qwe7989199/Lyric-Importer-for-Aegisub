@@ -3,3 +3,15 @@ You could get these lyric files from the software above or foobar2000 with "ESLy
 
 本脚本可实现从酷狗音乐歌词(.krc)、QQ音乐歌词(.qrc)和.lrc歌词到ASS格式的转换。
 你可以从上述软件或者Foobar2000的ESLyric插件获取到这类歌词。
+
+Usage:
+Put "LyricDecoder.dll" and "QQMusicCommon.dll" in the install directory of Aegisub
+Put "LyricImporter.lua" in the automation/autoload folder of Aegisub
+
+用法：
+将"LyricDecoder.dll" 和 "QQMusicCommon.dll" 放入 Aegisub 的安装目录
+将"LyricImporter.lua" 放入 Aegisub 的 automation/autoload 文件夹中
+
+Or you can refer to this Video: https://www.bilibili.com/video/av14224028/
+
+参考视频：https://www.bilibili.com/video/av14224028/
