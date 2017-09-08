@@ -34,6 +34,16 @@ local function round(x, dec)
   end
 end
 
+function filename_extension(filename)
+  if type(filename) ~= "string" then
+    error("filename must be string")
+  end
+  return string.lower(string.sub(filename,-4,-1))
+end
+
+allow_ext   = { ".krc",".qrc","lrc" }
+ext_handele = { krc_handle,qrc_handle,lrc_handle }
+
 function lyric_to_ass(subtitles)
   local filename = aegisub.dialog.open('Select Lyric File',
                                        '',
@@ -56,11 +66,12 @@ function lyric_to_ass(subtitles)
   local encoded_c_str = ffi.new("char[?]", (#encoded_str)+1)
   ffi.copy(encoded_c_str, encoded_str)
 
-  if string.lower(string.sub(filename,-4,-1)) == ".krc" then
+  import_file_ext = filename_extension(filename)
+  if     import_file_ext == ".krc" then
     decoded_p = lyric_decoder.krcdecode(encoded_c_str,#encoded_str)
-  elseif string.lower(string.sub(filename,-4,-1)) == ".qrc" then
+  elseif import_file_ext == ".qrc" then
     decoded_p = lyric_decoder.qrcdecode(encoded_c_str,#encoded_str)
-  elseif string.lower(string.sub(filename,-4,-1)) == ".lrc" then
+  elseif import_file_ext == ".lrc" then
     lyric = io.open(filename,"r")
     if not lyric then
       aegisub.debug.out("Failed to load lrc file.")
