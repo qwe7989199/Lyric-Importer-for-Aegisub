@@ -12,10 +12,6 @@ Put "LyricImporter.lua" in the automation/autoload folder of Aegisub
 将"LyricDecoder.dll" 和 "QQMusicCommon.dll" 放入 Aegisub 的安装目录
 将"LyricImporter.lua" 放入 Aegisub 的 automation/autoload 文件夹中
 
-Or you can refer to this Video: https://www.bilibili.com/video/av14224028/
-
-参考视频：https://www.bilibili.com/video/av14224028/
-
 * Require:
 Windows with Visual C++ 2015
 Aegisub 3.2 or later
@@ -23,3 +19,7 @@ Aegisub 3.2 or later
 * 要求:
 安装了 Visual C++ 2015 的 Windows
 Aegisub 3.2及后续版本
+
+Or you can refer to this Video: https://www.bilibili.com/video/av14224028/
+
+参考视频：https://www.bilibili.com/video/av14224028/
