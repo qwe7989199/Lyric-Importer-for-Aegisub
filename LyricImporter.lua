@@ -8,7 +8,7 @@ script_description = tr"Import Lyric File For Aegisub"
 script_author = "domo&SuJiKiNen"
 script_version = "1.2"
 
-k_tag="\\K"
+k_tag="\\K"  --you can change this to \\k or \\kf
 
 local ffi = require('ffi')
 ffi.load("QQMusicCommon.dll")
@@ -34,14 +34,14 @@ local function round(x, dec)
   end
 end
 
-function filename_extension(filename)
+function filename_extension(filename)  --check filename extension
   if type(filename) ~= "string" then
-    error("filename must be string")
+    error("filename must be string.")
   end
   return string.lower(string.sub(filename,-4,-1))
 end
 
-allow_ext = { ".krc",".qrc","lrc" }
+allow_ext   = { ".krc",".qrc","lrc" }
 ext_handele = { krc_handle,qrc_handle,lrc_handle }
 
 function lyric_to_ass(subtitles)
@@ -56,18 +56,16 @@ function lyric_to_ass(subtitles)
   end
   local encoded_file = io.open(filename,"rb")
   if not encoded_file then
-    aegisub.debug.out("Failed to load encoded file")
+    aegisub.debug.out("Failed to load encoded file.")
     aegisub.cancel()
   end
   local encoded_str = encoded_file:read("*all")
 
-  -- aegisub.debug.out(tostring(#encoded_str).." ")
-  -- aegisub.debug.out(tostring(string.len(encoded_str)).." ")
   local encoded_c_str = ffi.new("char[?]", (#encoded_str)+1)
   ffi.copy(encoded_c_str, encoded_str)
 
-  import_file_ext = filename_extension(filename)
-  if import_file_ext == ".krc" then
+  import_file_ext = filename_extension(filename)  --decode krc/qrc or read lrc
+  if     import_file_ext == ".krc" then
     decoded_p = lyric_decoder.krcdecode(encoded_c_str,#encoded_str)
   elseif import_file_ext == ".qrc" then
     decoded_p = lyric_decoder.qrcdecode(encoded_c_str,#encoded_str)
@@ -77,9 +75,9 @@ function lyric_to_ass(subtitles)
       aegisub.debug.out("Failed to load lrc file.")
       aegisub.cancel()
     end
-    str = lyric:read("*a") --read for karaoke lrc
+    str = lyric:read("*a")  --read for karaoke lrc
     lyric:close()
-    lyric = io.open(filename,"r") --reread for omitted lrc
+    lyric = io.open(filename,"r")  --reread for omitted lrc
   end
 
   if decoded_p then
@@ -88,117 +86,120 @@ function lyric_to_ass(subtitles)
     str=decoded_str
   end
   encoded_file:close()
-  l={}
-  for j = 1, #subtitles do
+
+  for j = 1, #subtitles do --get line table from existed line
     if subtitles[j].class == "dialogue" then
-      l = subtitles[j]
+      l         = subtitles[j]
+      l.actor   = ""
+      l.effect  = ""
+      l.comment = false
       break
     end
   end
 
   --Krc to ASS
 
-  if string.lower(string.sub(filename,-4,-1)) == ".krc" then
-    for t1,t2,line_lyric in string.gmatch(str,"%[(%d+),(%d+)%]([^%[]*)") do
-      if (t1~=nil and t2~=nil and line_lyric~=nil) then
-        ls_t = t1
-        le_t = t1+t2
+  if import_file_ext == ".krc" then
+    for t1,t2,line_lyric in string.gmatch(str,"%[(%d+),(%d+)%]([^%[]*)") do  --t1 : line start time; t2 : line duration
+      if (t1 ~= nil and t2 ~= nil and line_lyric ~= nil) then
+        ls_t  = t1
+        le_t  = t1+t2
         k_lrc = ""
-        for t3,t4,syl_text in string.gmatch(line_lyric,"<(%d+),(%d+),%d+>([^<]+)") do
-          kdur = round(t4/10)
-          syl_text = string.gsub(syl_text,"　",string.format("{%s%d}　[^\n]",k_tag,"0"))
+        for t3,t4,syl_text in string.gmatch(line_lyric,"<(%d+),(%d+),%d+>([^<]+)") do  --t3 : syl start time refer to line start time (no use in ASS) 
+          kdur     = round(t4/10)                                                      --t4 : syl duration 
+          syl_text = string.gsub(syl_text,"　",string.format("{%s%d}　[^\n]",k_tag,"0"))  --process full width space
           syl_text = string.gsub(syl_text,"[　 ]*[\n\r]+","")
-          k_lrc = k_lrc..string.format("{%s%d}",k_tag,kdur)..syl_text
+          k_lrc    = k_lrc..string.format("{%s%d}",k_tag,kdur)..syl_text
         end
         l.start_time = ls_t
-        l.end_time = le_t
-        l.text = k_lrc
+        l.end_time   = le_t
+        l.text       = k_lrc
         subtitles[0] = l
       end
     end
 
    --Qrc to ASS
 
-  elseif string.lower(string.sub(filename,-4,-1)) == ".qrc" then
-    for t1,t2,line_lyric in string.gmatch(str,"%[(%d+),(%d+)%]([^%[]*)") do
-      if (t1~=nil and t2~=nil and line_lyric~=nil) then
-        ls_t = t1
-        le_t = t1+t2
+  elseif import_file_ext == ".qrc" then
+    for t1,t2,line_lyric in string.gmatch(str,"%[(%d+),(%d+)%]([^%[]*)") do  --t1 : line start time ; t2 : line duration
+      if (t1 ~= nil and t2 ~= nil and line_lyric ~= nil) then
+        ls_t  = t1
+        le_t  = t1+t2
         k_lrc = ""
-        for syl_text,t3,t4 in string.gmatch(line_lyric,"([^%(]*)%((%d+),(%d+)%)") do
-          kdur = round(t4/10)
-          syl_text = string.gsub(syl_text,"　",string.format("{%s%d}　",k_tag,"0"))
+        for syl_text,t3,t4 in string.gmatch(line_lyric,"([^%(]*)%((%d+),(%d+)%)") do  --t3 : syl start time refer to line start time (no use in ASS)
+          kdur     = round(t4/10)                                                     --t4 : syl duration
+          syl_text = string.gsub(syl_text,"([^}]+)　",string.format("%s{%s0}　","%1",k_tag))  --process full width space
           syl_text = string.gsub(syl_text,"[　 ]*[\n\r]+","")
-          k_lrc = k_lrc..string.format("{%s%d}",k_tag,kdur)..syl_text
+          k_lrc    = k_lrc..string.format("{%s%d}",k_tag,kdur)..syl_text
         end
         l.start_time = ls_t
-        l.end_time = le_t
-        l.text = k_lrc
+        l.end_time   = le_t
+        l.text       = k_lrc
         subtitles[0] = l
       end
     end
 
     --Lrc to ASS
 
-  elseif string.lower(string.sub(filename,-4,-1)) == ".lrc" then
-    i=1
-    ls_t = {}
-    le_t = {}
+  elseif import_file_ext == ".lrc" then
+    i     = 1
+    ls_t  = {}
+    le_t  = {}
     l_lrc = {}
     for st_min,st_sec,st_cs,line_lyric in string.gmatch(str,"%[(%d+):(%d+)%.(%d+)%]([^\n]+)") do --for karaoke timed lrc
       lrc_with_k = nil
       if (st_min == nil and st_sec == nil and st_cs == nil) then
         ls_t[i] = 0
       else
-        ls_t[i] = st_min*60*1000+st_sec*1000+st_cs*10
+        ls_t[i]  = st_min*60*1000+st_sec*1000+st_cs*10
         l_lrc[i] = line_lyric
         if string.find(line_lyric,"[^%]]+%[(%d+):(%d+)%.(%d+)%]") ~= nil then --if the lrc contains karaoke time like [00:00.00]syl[00:00.50]
           lrc_with_k = true
-          kdur = 0
-          total_prev_k = 0
-          k_lrc = {}
-          k_lrc[i] = ""
-          for syl_text,sst_min,sst_sec,sst_cs in string.gmatch(line_lyric,"([^%[]+)%[(%d+):(%d+)%.(%d+)%]") do
-            total_prev_k = total_prev_k + kdur
-            kdur = round(((sst_min*60*1000+sst_sec*1000+sst_cs*10) - ls_t[i])/10) - total_prev_k
+          tot_prev_k = 0
+          kdur       = 0
+          k_lrc      = {}
+          k_lrc[i]   = ""
+          for syl_text,sst_min,sst_sec,sst_cs in string.gmatch(line_lyric,"([^%[]+)%[(%d+):(%d+)%.(%d+)%]") do  --sst_min : syllable start time in minute
+            tot_prev_k = tot_prev_k + kdur
+            kdur = round(((sst_min*60*1000+sst_sec*1000+sst_cs*10) - ls_t[i])/10) - tot_prev_k  --calc syl duration using total prev k
             if syl_text == nil then
               syl_text = ""
             end
             k_lrc[i] = k_lrc[i]..string.format("{%s%d}%s",k_tag,kdur,syl_text)
-            le_t[i] = sst_min*60*1000+sst_sec*1000+sst_cs*10
+            le_t[i]  = sst_min*60*1000+sst_sec*1000+sst_cs*10
           end
           l.start_time = ls_t[i]
-          l.end_time = le_t[i]
-          l.text = string.gsub(k_lrc[i],"([^}]+)　",string.format("%s{%s0}　","%1",k_tag))
-          subtitles.append(l)
-          i=i+1
+          l.end_time   = le_t[i]
+          l.text       = string.gsub(k_lrc[i],"([^}]+)　",string.format("%s{%s0}　","%1",k_tag))  --process full width space
+          subtitles[0] = l
+          i = i+1
         else
-          i=i+1
+          i = i+1
         end
       end
     end
     --for no k time lrc
     if lrc_with_k ~= true then
-      line_n = 1
+      line_n    = 1
       full_text = {}
       --for omitted lrc
       for line in lyric:lines() do
-        l_text,n = string.gsub(line,"%[%d+:%d+.%d+%]","")
-        for st_min,st_sec,st_cs in string.gmatch(line,"%[(%d+):(%d+)%.(%d+)%]") do
+        l_text,n = string.gsub(line,"%[%d+:%d+.%d+%]","")  --get the number of time stamps for every line
+        for st_min,st_sec,st_cs in string.gmatch(line,"%[(%d+):(%d+)%.(%d+)%]") do  --connect stamp with it's text
           s_t_in_ms = st_min*60*1000+st_sec*1000+st_cs*10
-          full_text[#full_text+1] = {start_time = s_t_in_ms,text = l_text}
+          full_text[#full_text+1] = {start_time = s_t_in_ms,text = l_text}  --save full format lrc in a table
         end
       end
-      full_text[#full_text+1] = {start_time=3600000,text=""}
-      table.sort(full_text,function(a,b) return a.start_time<b.start_time end )
+      full_text[#full_text+1] = {start_time=3600000,text=""}  --ensure one more start time serves as the end time of last line in lrc
+      table.sort(full_text,function(a,b) return a.start_time<b.start_time end )  --sort by start time 
       --append lines
       for j = 1,#full_text-1 do
         lst = full_text[j]["start_time"]
         let = full_text[j+1]["start_time"]
-        l.text = full_text[j]["text"]
+        l.text       = full_text[j]["text"]
         l.start_time = lst
-        l.end_time = let
-        subtitles.append(l)	
+        l.end_time   = let
+        subtitles[0] = l
       end
     end
     lyric:close()
