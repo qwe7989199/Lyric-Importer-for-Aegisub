@@ -1,0 +1,11 @@
+"Uta ni Katachi wa Nai Keredo - Hatsune Miku.lrc"
+For omitted format lrc.
+
+"Natsu no Hana wa Himawari Dake Jyanai - Imaizumi Yui (Keyakizaka46).lrc"
+For karaoke timed lrc.
+
+"Tsubasa wo Kudasai - Hayashibara Megumi.qrc"
+For QQMusic's qrc.
+
+"ETERNAL BALZE - Mizuki Nana.krc"
+For Kugou Music's krc.
