@@ -247,12 +247,10 @@ function lyric_to_ass(subtitles)
     lrc = lrc_handler,
   }
   import_file_ext = filename_extension(filename)
-  for index,ext in ipairs(allow_ext) do
-    handler = ext_handler[import_file_ext]
-    convert_subtitles = handler(encoded_str)
-    if convert_subtitles then
-      subtitles.append(unpack(convert_subtitles))
-    end
+  handler = ext_handler[import_file_ext]
+  convert_subtitles = handler(encoded_str)
+  if convert_subtitles then
+    subtitles.append(unpack(convert_subtitles))
   end
 end
 
