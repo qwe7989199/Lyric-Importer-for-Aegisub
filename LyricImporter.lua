@@ -148,14 +148,22 @@ function qrc_parse_line(qrc_line)
 end
 
 function lrc_handler(lrc_strs)
-  for lrc_line in string.gmatch(lrc_strs,"%[%d+:%d+%.%d+%][^\n]+") do
-    aegisub.debug.out(lrc_line)
-    aegisub.debug.out("++++++\n")
+  convert_subtitles = {}
+  for lrc_line in string.gmatch(lrc_strs,"%[%d+:%d*[%.:]?%d-%][^\n]+") do
+    table.insert(convert_subtitles,lrc_parse_line(lrc_line))
   end
+  table.insert(convert_subtitles,ass_simple_line(3600000,0,""))
+  table.sort(convert_subtitles,function(a,b) return a.start_time<b.start_time end )
+  for i=#convert_subtitles-1,1,-1,do
+    if not convert_subtitles[i]["end_time"] then
+      convert_subtitles[i]["end_time"] = convert_subtitles[i+1]["start_time"]
+    end
+  end
+  return convert_subtitles
 end
 
 function lrc_time_2_ass_time(string)
-  min,sec,cs = string.match(string,"%[(%d+):(%d*)%.?(%d-)%]")
+  min,sec,cs = string.match(string,"%[(%d+):(%d*)[%.:]?(%d-)%]")
   min = tonumber(min) or 0
   sec = tonumber(sec) or 0
   cs  = tonumber(cs)  or 0
@@ -163,70 +171,39 @@ function lrc_time_2_ass_time(string)
 end
 
 function lrc_parse_line(lrc_line)
-
-end
-
-function lrc_parse_line_old()
-  i=1
-  ls_t  = {}
-  le_t  = {}
-  l_lrc = {}
-  for st_min,st_sec,st_cs,line_lyric in string.gmatch(str,"%[(%d+):(%d+)%.(%d+)%]([^\n]+)") do --for karaoke timed lrc
-    lrc_with_k = nil
-    if (st_min == nil and st_sec == nil and st_cs == nil) then
-      ls_t[i] = 0
-    else
-      ls_t[i]  = st_min*60*1000+st_sec*1000+st_cs*10
-      l_lrc[i] = line_lyric
-      if string.find(line_lyric,"[^%]]+%[(%d+):(%d+)%.(%d+)%]") ~= nil then --if the lrc contains karaoke time like [00:00.00]syl[00:00.50]
-        lrc_with_k = true
-        kdur = 0
-        total_prev_k = 0
-        k_lrc = {}
-        k_lrc[i] = ""
-        for syl_text,sst_min,sst_sec,sst_cs in string.gmatch(line_lyric,"([^%[]+)%[(%d+):(%d+)%.(%d+)%]") do
-          total_prev_k = total_prev_k + kdur
-          kdur = round(((sst_min*60*1000+sst_sec*1000+sst_cs*10) - ls_t[i])/10) - total_prev_k
-          if syl_text == nil then
-            syl_text = ""
-          end
-          k_lrc[i] = k_lrc[i]..string.format("{%s%d}%s",k_tag,kdur,syl_text)
-          le_t[i] = sst_min*60*1000+sst_sec*1000+sst_cs*10
-        end
-        l.start_time = ls_t[i]
-        l.end_time   = le_t[i]
-        l.text       = k_lrc[i]
-        subtitles.append(l)
-        i=i+1
-      else
-        i=i+1
+  times = {}
+  parsed_data = {}
+  for time_str,text in string.gmatch(lrc_line,"(%[%d+:%d*[%.:]?%d-%])([^%[]*)") do
+    table.insert(times,time_str)
+    if text and text~="" then
+      for _,time_str in ipairs(times) do
+        table.insert(parsed_data,{time_str=time_str,text=text})
       end
+      times = {}
     end
   end
-  --for no k time lrc
-  if lrc_with_k ~= true then
-    line_n = 1
-    full_text = {}
-    --for omitted lrc
-    for line in lyric:lines() do
-      l_text,n = string.gsub(line,"%[%d+:%d+.%d+%]","")
-      for st_min,st_sec,st_cs in string.gmatch(line,"%[(%d+):(%d+)%.(%d+)%]") do
-        s_t_in_ms = st_min*60*1000+st_sec*1000+st_cs*10
-        full_text[#full_text+1] = {start_time = s_t_in_ms,text = l_text}
-      end
+
+  ass_line = ass_line_template()
+  if #times==1 then -- k timed lrc
+    table.insert(parsed_data,{time_str=times[1],text=""})
+    ass_line.start_time = lrc_time_2_ass_time(parsed_data[1]["time_str"])
+    ass_line.text = ""
+    for i=2,#parsed_data do
+      syl_start_time = lrc_time_2_ass_time(parsed_data[i-1]["time_str"])
+      syl_end_time   = lrc_time_2_ass_time(parsed_data[i]["time_str"])
+      syl_dur        = (syl_end_time - syl_start_time) / 10
+      syl_text       = parsed_data[i-1]["text"]
+      ass_line.text  = ass_line.text..string.format("{%s%d}%s",k_tag,syl_dur,syl_text)
     end
-    full_text[#full_text+1] = {start_time=3600000,text=""}
-    table.sort(full_text,function(a,b) return a.start_time<b.start_time end )
-    --append lines
-    for j = 1,#full_text-1 do
-      lst    = full_text[j]["start_time"]
-      let    = full_text[j+1]["start_time"]
-      l.text = full_text[j]["text"]
-      l.start_time = lst
-      l.end_time = let
-      subtitles.append(l)
+    ass_line.end_time = lrc_time_2_ass_time(parsed_data[#parsed_data]["time_str"])
+  else -- normal line or merged timed time
+    for i=1,#parsed_data do
+      ass_line            = ass_line_template()
+      ass_line.start_time = lrc_time_2_ass_time(parsed_data[i]["time_str"])
+      ass_line.text       = parsed_data[i]["text"]
     end
   end
+  return ass_line
 end
 
 function lyric_to_ass(subtitles)
