@@ -1,4 +1,4 @@
-﻿--[[ This script is used to convert the special format lyric file of Kugou Music (.krc) , QQ Music (.qrc) and LyRiCs (.lrc) into ASS format.
+--[[ This script is used to convert the special format lyric file of Kugou Music (.krc) , QQ Music (.qrc) and LyRiCs (.lrc) into ASS format.
   You could get these lyric files from the software above or foobar2000 with "ESLyric" plugin.
 --]]
 
@@ -8,7 +8,8 @@ script_description = tr"Import Lyric File For Aegisub"
 script_author = "domo&SuJiKiNen"
 script_version = "1.2"
 
-k_tag="\\K"
+k_tag="\\K"  --you can change this to \\k or \\kf
+
 local ffi = require('ffi')
 ffi.load("QQMusicCommon.dll")
 local lyric_decoder = ffi.load("LyricDecoder.dll")
@@ -205,6 +206,9 @@ function lrc_parse_line(lrc_line)
   end
   return ass_line
 end
+
+allow_ext   = { ".krc",".qrc","lrc" }
+ext_handele = { krc_handle,qrc_handle,lrc_handle }
 
 function lyric_to_ass(subtitles)
   local filename = aegisub.dialog.open('Select Lyric File',
