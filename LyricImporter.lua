@@ -9,6 +9,7 @@ script_author = "domo&SuJiKiNen"
 script_version = "1.2"
 
 k_tag="\\K"  --you can change this to \\k or \\kf
+NOT_SET_ENDTIME = -1
 
 local ffi = require('ffi')
 ffi.load("QQMusicCommon.dll")
@@ -151,12 +152,15 @@ end
 function lrc_handler(lrc_strs)
   convert_subtitles = {}
   for lrc_line in string.gmatch(lrc_strs,"%[%d+:%d*[%.:]?%d-%][^\n]+") do
-    table.insert(convert_subtitles,lrc_parse_line(lrc_line))
+    lines = lrc_parse_line(lrc_line)
+    for _,convert_line in ipairs(lines) do
+      table.insert(convert_subtitles,convert_line)
+    end
   end
-  table.insert(convert_subtitles,ass_simple_line(3600000,0,""))
+  -- table.insert(convert_subtitles,ass_simple_line(3600000,0,""))
   table.sort(convert_subtitles,function(a,b) return a.start_time<b.start_time end )
-  for i=#convert_subtitles-1,1,-1,do
-    if not convert_subtitles[i]["end_time"] then
+  for i=#convert_subtitles-1,1,-1 do
+    if convert_subtitles[i]["end_time"]==NOT_SET_ENDTIME then
       convert_subtitles[i]["end_time"] = convert_subtitles[i+1]["start_time"]
     end
   end
@@ -172,11 +176,12 @@ function lrc_time_2_ass_time(string)
 end
 
 function lrc_parse_line(lrc_line)
+  lines = {}
   times = {}
   parsed_data = {}
-  for time_str,text in string.gmatch(lrc_line,"(%[%d+:%d*[%.:]?%d-%])([^%[]*)") do
+  for time_str,text in string.gmatch(lrc_line,"(%[%d+:%d*[%.:]?%d-%])([^%[\r\n]*)") do
     table.insert(times,time_str)
-    if text and text~="" then
+    if text~="" then
       for _,time_str in ipairs(times) do
         table.insert(parsed_data,{time_str=time_str,text=text})
       end
@@ -184,11 +189,10 @@ function lrc_parse_line(lrc_line)
     end
   end
 
-  ass_line = ass_line_template()
-  if #times==1 then -- k timed lrc
+  if #times>0 then -- k timed lrc
     table.insert(parsed_data,{time_str=times[1],text=""})
+    ass_line = ass_line_template()
     ass_line.start_time = lrc_time_2_ass_time(parsed_data[1]["time_str"])
-    ass_line.text = ""
     for i=2,#parsed_data do
       syl_start_time = lrc_time_2_ass_time(parsed_data[i-1]["time_str"])
       syl_end_time   = lrc_time_2_ass_time(parsed_data[i]["time_str"])
@@ -197,14 +201,16 @@ function lrc_parse_line(lrc_line)
       ass_line.text  = ass_line.text..string.format("{%s%d}%s",k_tag,syl_dur,syl_text)
     end
     ass_line.end_time = lrc_time_2_ass_time(parsed_data[#parsed_data]["time_str"])
+    table.insert(lines,ass_line)
   else -- normal line or merged timed time
     for i=1,#parsed_data do
-      ass_line            = ass_line_template()
+      ass_line = ass_simple_line(0,NOT_SET_ENDTIME,"")
       ass_line.start_time = lrc_time_2_ass_time(parsed_data[i]["time_str"])
       ass_line.text       = parsed_data[i]["text"]
+      table.insert(lines,ass_line)
     end
   end
-  return ass_line
+  return lines
 end
 
 function lyric_to_ass(subtitles)
