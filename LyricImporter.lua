@@ -75,7 +75,7 @@ function ass_line_template()
   line.end_time = 5000
   line.style = "Default"
   line.margin_l,line.margin_r,line.margin_t,line.margin_b = 0,0,0,0
-  line.actor,line.effect,line.text  = " "," "," "
+  line.actor,line.effect,line.text  = " "," ",""
   line.extra = {}
   return line
 end
