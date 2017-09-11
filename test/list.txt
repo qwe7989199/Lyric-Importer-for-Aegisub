@@ -4,6 +4,10 @@ For omitted format lrc.
 "Natsu no Hana wa Himawari Dake Jyanai - Imaizumi Yui (Keyakizaka46).lrc"
 For karaoke timed lrc.
 
+"Ganghao Yujianni - Li Yugang.lrc"
+For unformal lrc.
+From www.jianshu.com/p/27d6b937e592.
+
 "Tsubasa wo Kudasai - Hayashibara Megumi.qrc"
 For QQMusic's qrc.
 
