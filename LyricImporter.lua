@@ -202,7 +202,7 @@ function lrc_parse_line(lrc_line)
     end
     ass_line.end_time = lrc_time_2_ass_time(parsed_data[#parsed_data]["time_str"])
     table.insert(lines,ass_line)
-  else -- normal line or merged timed time
+  else -- normal line or merged same text lines
     for i=1,#parsed_data do
       ass_line = ass_simple_line(0,NOT_SET_ENDTIME,"")
       ass_line.start_time = lrc_time_2_ass_time(parsed_data[i]["time_str"])
