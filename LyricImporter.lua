@@ -207,9 +207,6 @@ function lrc_parse_line(lrc_line)
   return ass_line
 end
 
-allow_ext   = { ".krc",".qrc","lrc" }
-ext_handele = { krc_handle,qrc_handle,lrc_handle }
-
 function lyric_to_ass(subtitles)
   local filename = aegisub.dialog.open('Select Lyric File',
                                        '',
