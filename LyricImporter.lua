@@ -154,6 +154,14 @@ function lrc_handler(lrc_strs)
   end
 end
 
+function lrc_time_2_ass_time(string)
+  min,sec,cs = string.match(string,"%[(%d+):(%d*)%.?(%d-)%]")
+  min = tonumber(min) or 0
+  sec = tonumber(sec) or 0
+  cs  = tonumber(cs)  or 0
+  return min*60*1000 + sec*1000 + cs*10
+end
+
 function lrc_parse_line(lrc_line)
 
 end
