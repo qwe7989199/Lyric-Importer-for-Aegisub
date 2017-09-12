@@ -111,10 +111,11 @@ function krc_parse_line(krc_line)
   ltext = ""
   for t3,t4,syl_text in string.gmatch(syls_str,"<(%d+),(%d+),%d+>([^<]+)") do
     kdur     = round(t4/10)
-    syl_text = string.gsub(syl_text,"　",string.format("{%s%d}　[^\n]",k_tag,"0"))
-    syl_text = string.gsub(syl_text,"[　 ]*[\n\r]+","")
+    syl_text = string.gsub(syl_text,"　",string.format("{%s%d}　",k_tag,"0"))
+    syl_text = string.gsub(syl_text,"{"..k_tag.."0}[　 ]*[\n\r]*","")
     ltext    = ltext..string.format("{%s%d}",k_tag,kdur)..syl_text
   end
+  ltext = string.gsub(ltext,"[\n\r]*","")
   return ass_simple_line(lst,let,ltext)
 end
 
@@ -142,8 +143,8 @@ function qrc_parse_line(qrc_line)
   ltext = ""
   for syl_text,t3,t4 in string.gmatch(syls_str,"([^%(]*)%((%d+),(%d+)%)") do
     kdur     = round(t4/10)
-    syl_text = string.gsub(syl_text,"　",string.format("{%s%d}　",k_tag,"0"))
-    syl_text = string.gsub(syl_text,"[　 ]*[\n\r]+","")
+    syl_text = string.gsub(syl_text,"[^}]　",string.format("{%s%d}　",k_tag,"0"))
+    syl_text = string.gsub(syl_text,"{"..k_tag.."0}[　 ]*[\n]+","")
     ltext    = ltext..string.format("{%s%d}",k_tag,kdur)..syl_text
   end
   return ass_simple_line(lst,let,ltext)
