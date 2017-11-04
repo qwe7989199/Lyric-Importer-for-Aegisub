@@ -303,7 +303,6 @@ if decoded_p then
   decoded_str = ffi.string(decoded_p)
   ffi.C.free(decoded_p)
 end
-aegisub.debug.out(decoded_str)
 for qrc_line in string.gmatch(decoded_str,"%[%d+,%d+%][^%[]*") do
   ass_line = qrc_parse_line(qrc_line)
   table.insert( convert_subtitles,ass_line )
