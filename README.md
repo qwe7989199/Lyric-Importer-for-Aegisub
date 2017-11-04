@@ -7,12 +7,12 @@ You could get these lyric files from the software above or foobar2000 with "ESLy
 * Usage:
 Put "LyricDecoder.dll" and "QQMusicCommon.dll" in the install directory of Aegisub
 
-Put "LyricImporter.lua" in the automation/autoload folder of Aegisub
+Put "LyricImporter.lua" and "include" in the automation/autoload folder of Aegisub
 
 * 用法：
 将"LyricDecoder.dll" 和 "QQMusicCommon.dll" 放入 Aegisub 的安装目录
 
-将"LyricImporter.lua" 放入 Aegisub 的 automation/autoload 文件夹中
+将"LyricImporter.lua" 和 "include" 放入 Aegisub 的 automation/autoload 文件夹中
 
 * Require:
 
@@ -25,6 +25,10 @@ Aegisub 3.2 or later
 安装了 Visual C++ 2015 的 Windows
 
 Aegisub 3.2及后续版本
+
+Change for ver 1.3
+Add support for romaji in krc.
+Fix a bug in qrc.
 
 Or you can refer to this Video: https://www.bilibili.com/video/av14224028/
 
