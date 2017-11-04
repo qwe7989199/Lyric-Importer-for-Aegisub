@@ -303,6 +303,8 @@ if decoded_p then
   decoded_str = ffi.string(decoded_p)
   ffi.C.free(decoded_p)
 end
+aegisub.debug.out(decoded_str)
+decoded_str = string.gsub(decoded_str,"%((%d+,%d+)%)%((%d+,%d+)%)","%(%1%)⠀%(%2%)")
 for qrc_line in string.gmatch(decoded_str,"%[%d+,%d+%][^%[]*") do
   ass_line = qrc_parse_line(qrc_line)
   table.insert( convert_subtitles,ass_line )
@@ -314,11 +316,11 @@ function qrc_parse_line(qrc_line)
 lst,ldur,syls_str = string.match(qrc_line,"%[(%d+),(%d+)%](.*)")
 let   = lst + ldur
 ltext = ""
-for syl_text,t3,t4 in string.gmatch(syls_str,"([%(]?[^%(]*)%((%d+),(%d+)%)") do
+for syl_text,t3,t4 in string.gmatch(syls_str,"(%(?[^%(]*)%((%d+),(%d+)%)") do
   kdur     = round(t4/10)
   syl_text = string.gsub(syl_text,"[^}]　",string.format("{%s%d}　",k_tag,"0"))
   syl_text = string.gsub(syl_text,"{"..k_tag.."0}[　 ]*[\n]+","")
-  ltext    = ltext..string.format("{%s%d}",k_tag,kdur)..syl_text
+  ltext    = ltext..string.format("{%s%d}",k_tag,kdur)..string.gsub(syl_text,"⠀","")
 end
 return ass_simple_line(lst,let,ltext)
 end
