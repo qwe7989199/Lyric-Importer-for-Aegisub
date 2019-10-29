@@ -6,13 +6,11 @@ You could get these lyric files from the software above or foobar2000 with "ESLy
 
 
 * Usage：
-LyricDecoder.dll、QQMusicCommon.dll -> C:\Program Files (x86)\Aegisub\
-LyricImporter.lua -> C:\Program Files (x86)\Aegisub\automation\autoload\
-include  -> C:\Program Files (x86)\Aegisub\automation\
+Download the whole repository,confirm your Aegisub version (>=3.2.0, 32bit or 64bit) and uncompress correspond folder to Aegisub's root path.
 
 
-Or you can refer to this Video: https://www.bilibili.com/video/av14224028/
+~~Or you can refer to this Video: https://www.bilibili.com/video/av14224028/~~
 
-参考视频：https://www.bilibili.com/video/av14224028/
+~~参考视频：https://www.bilibili.com/video/av14224028/~~
 
 另外，对于使用GB2312编码的LRC文件，目前没有直接解决方案，请直接记事本打开用Unicode选项另存后读取
