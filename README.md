@@ -6,7 +6,7 @@ You could get these lyric files from the software above or foobar2000 with "ESLy
 
 
 * Usage：
-Download the whole repository, confirm your Aegisub version (>=3.2.0, 32bit or 64bit) and uncompress correspond folder to Aegisub's root path.  
+Download the whole repository, confirm your Aegisub version (>=3.2.0, 32bit or 64bit) and uncompress correspond folders to Aegisub's root path.  
 
 * 用法：
 下载整个仓库，确认Aegisub版本(>=3.2.0 和 位数)，解压对应的文件夹到Aegisub的根目录.
@@ -15,4 +15,8 @@ Download the whole repository, confirm your Aegisub version (>=3.2.0, 32bit or 6
 
 ~~参考视频：https://www.bilibili.com/video/av14224028/~~
 
-另外，对于使用GB2312编码的LRC文件，目前没有直接解决方案，请直接记事本打开用Unicode选项另存后读取
+另外，对于使用GB2312编码的LRC文件，目前没有直接解决方案，请直接记事本打开用Unicode选项另存后读取  
+
+* Special Thanks to
+[SuJiKiNen](https://github.com/SuJiKiNen) and [wangqr](https://github.com/wangqr) for 64bit support.
+ 
