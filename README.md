@@ -18,5 +18,6 @@ Download the whole repository, confirm your Aegisub version (>=3.2.0, 32bit or 6
 另外，对于使用GB2312编码的LRC文件，目前没有直接解决方案，请直接记事本打开用Unicode选项另存后读取  
 
 * Special Thanks to
-[SuJiKiNen](https://github.com/SuJiKiNen) and [wangqr](https://github.com/wangqr) for 64bit support.
+[SuJiKiNen](https://github.com/SuJiKiNen) and [wangqr](https://github.com/wangqr) for 64bit support.  
+'LyricDecoder.dll' [Source Code](https://github.com/SuJiKiNen/LyricDecoder)
  
